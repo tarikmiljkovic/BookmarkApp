@@ -19,7 +19,7 @@ class BookmarkApp:
             raise ValueError("Please enter {} missing username(s).".format(abs(len(users)-max_users)))
 
         self.max_users_num = max_users
-        self.current_user = None
+        self.current_user = users[0]
         self.bookmarks = []
         self.domains = []
         self.secure_urls = 0

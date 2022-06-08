@@ -68,11 +68,11 @@ class Test_BookmarkApp_select_user(unittest.TestCase):
         self.assertTrue(ret_status, msg=message)
 
 class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
-    def test_011_select_user_normal(self):
-        users = ['user1', 'user2']
-        app = BookmarkApp(2, users)
-        ret_status, message = app.select_user(0)
-        self.assertTrue(ret_status, msg=message)
+    def test_011_add_new_bookmark_title_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.add_new_bookmark(1, "https://github.com/", ['git'])
 
 if __name__ == '__main__':
     unittest.main()
