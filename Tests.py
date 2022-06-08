@@ -27,5 +27,6 @@ class Test_BookmarkApp_select_user(unittest.TestCase):
         self.assertTrue(ret_status, msg=message)
 
 
+
 if __name__ == '__main__':
     unittest.main()
