@@ -8,15 +8,13 @@ import json
 class BookmarkApp:
     def __init__(self, max_users, users):
         if (type(max_users) is not int):
-            raise ValueError("Parameter 'max_users' should be integer.")
+            raise TypeError("Parameter 'max_users' should be integer.")
         if (type(users) is not list):
-            raise ValueError("Parameter 'users' should be list.")
+            raise TypeError("Parameter 'users' should be list.")
         if (max_users <= 0):
             raise ValueError("Parameter 'max_users' should be greater than 0.")
         if (max_users > 3):
-            raise ValueError("Parameter 'max_users' should be lower than 3.")
-        if (users is None):
-            raise ValueError("Parameter 'users' should contain at least one username.")
+            raise OverflowError("Parameter 'max_users' should be lower than 3.")
         if (len(users) != max_users):
             raise ValueError("Please enter {} missing username(s).".format(abs(len(users)-max_users)))
 
@@ -30,13 +28,28 @@ class BookmarkApp:
         self.users = users
 
     def select_user(self, option):
-        if option == None:
-            return False, "User option is not specified."
+        if type(option) is not int:
+            raise TypeError("Parameter 'option' should be integer.")
+        if (option < 0) or (option > self.max_users_num):
+            raise ValueError("Parameter 'option' should be within range from 1 and max_users_num.")
 
         self.current_user = self.users[option]
         return True, "User '{}' has been selected.".format(self.users[int(option)])
 
-    def add_new_bookmark(self, title, url, tag=None):
+    def add_new_bookmark(self, title, url, tag):
+        if (type(title) is not str):
+            raise TypeError("Parameter 'title' should be specified as string.")
+
+        if (type(url) is not str):
+            raise TypeError("Parameter 'url' should be specified as string.")
+
+        if (type(tag) is not list):
+            raise TypeError("Parameter 'tag' should be specified as string.")
+
+        valid = validators.url(url)
+        if valid != True:
+            raise ValueError ("The URL is invalid.")
+
         data = {
             'title': title,
             'url': url,
@@ -45,18 +58,12 @@ class BookmarkApp:
             'tag': tag
         }
 
-        valid = validators.url(data['url'])
-
-        if valid != True:
-            return False, "The URL is invalid."
-
         data['domain'] = urlparse(data['url']).netloc
         if data['domain'] not in self.domains:
             self.domains.append(data['domain'])
 
         data['rating'] = 0
         for data_el in self.bookmarks:
-
             if data['user'] == data_el['user'] and data['url'] == data_el['url']:
                 data_el['rating'] = data_el['rating'] + 1
                 return True, "Bookmark already exists, rating has been increased."
