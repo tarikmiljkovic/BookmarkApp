@@ -44,7 +44,7 @@ class BookmarkApp:
             raise TypeError("Parameter 'url' should be specified as string.")
 
         if (type(tag) is not list):
-            raise TypeError("Parameter 'tag' should be specified as string.")
+            raise TypeError("Parameter 'tag' should be specified as list.")
 
         valid = validators.url(url)
         if valid != True:
@@ -73,7 +73,10 @@ class BookmarkApp:
             self.secure_urls = self.secure_urls + 1
         return True, "New bookmark is added successfully."
 
-    def filter_bookmarks(self, keywords=None):
+    def filter_bookmarks(self, keywords):
+        if (type(keywords) is not list):
+            raise TypeError("Parameter 'keywords' should be specified as list.")
+
         filtered_bookmarks = []
         for data_el in self.bookmarks:
             if data_el['user'] == self.current_user:
@@ -82,10 +85,10 @@ class BookmarkApp:
                         if (data_el not in filtered_bookmarks):
                             filtered_bookmarks.append(data_el)
 
-        if filtered_bookmarks.len() == 0:
+        if len(filtered_bookmarks) == 0:
             return False, "Nothing has been found."
         else:
-            return True, filtered_bookmarks
+            return True, "{} item(s) have been found.".format(len(filtered_bookmarks)), filtered_bookmarks
 
     def remove_tag(self, title=None, url=None, tag=None):
         if (tag is None):

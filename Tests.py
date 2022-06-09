@@ -68,11 +68,78 @@ class Test_BookmarkApp_select_user(unittest.TestCase):
         self.assertTrue(ret_status, msg=message)
 
 class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
-    def test_011_add_new_bookmark_title_wrong_type(self):
+    def test_012_add_new_bookmark_title_wrong_type(self):
         with self.assertRaises(TypeError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.add_new_bookmark(1, "https://github.com/", ['git'])
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_013_add_new_bookmark_url_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.add_new_bookmark("title", 1, ['git'])
+
+    def test_014_add_new_bookmark_tag_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.add_new_bookmark("title", "https://github.com/", 1)
+
+    def test_015_add_new_bookmark_tag_wrong_type(self):
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.add_new_bookmark("title", "abc123", [])
+
+    def test_016_add_new_bookmark_unique_bookmark(self):
+        app = BookmarkApp(2, ['user1', 'user2'])
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "New bookmark is added successfully.")
+
+    def test_017_add_new_bookmark_duplicate_bookmark(self):
+        app = BookmarkApp(2, ['user1', 'user2'])
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "Bookmark already exists, rating has been increased.")
+
+class Test_BookmarkApp_filter_bookmarks(unittest.TestCase):
+    def test_018_filter_bookmarks_keywords_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.filter_bookmarks(1)
+
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.filter_bookmarks(None)
+
+    def test_019_filter_bookmarks_single_keywoed(self):
+        max_users = 2
+        users = ['user1', 'user2']
+        app = BookmarkApp(max_users, users)
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        ret_status, message, filtered_bookmarks = app.filter_bookmarks(['git'])
+        self.assertTrue(ret_status)
+        self.assertIn(str(len(filtered_bookmarks)), message)
+
+    def test_020_filter_bookmarks_multiple_keywords(self):
+        max_users = 2
+        users = ['user1', 'user2']
+        app = BookmarkApp(max_users, users)
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        ret_status, message, filtered_bookmarks = app.filter_bookmarks(['git', 'code'])
+        self.assertTrue(ret_status)
+        self.assertIn(str(len(filtered_bookmarks)), message)
+
+    def test_021_filter_bookmarks_not_found(self):
+        max_users = 2
+        users = ['user1', 'user2']
+        app = BookmarkApp(max_users, users)
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        ret_status, message = app.filter_bookmarks(['tool'])
+        self.assertFalse(ret_status)
+        self.assertIn(message, "Nothing has been found.")
