@@ -149,24 +149,29 @@ class BookmarkApp:
             newlist = sorted(sorted_bookmarks, key=itemgetter('datetime'), reverse=True)
             return True, "The bookmark for '{}' user is sorted according to datetime parameter.".format(self.current_user), newlist
 
-    def export_bookmarks(self):
-        try:
-            with open('bookmarks_data.json', 'w') as f:
-                for data_el in self.bookmarks:
-                    json.dump(data_el, f)
-                    f.write('\n')
+    def export_bookmarks(self, filename):
+        if (type(filename) is not str):
+            raise TypeError("The parameter 'filename' has to be string.")
 
-            return True, "Bookmarks were successfully exported."
-        except:
-            return False, "Bookmarks cannot be exported."
+        with open(filename, 'w') as f:
+            for data_el in self.bookmarks:
+                json.dump(data_el, f)
+                f.write('\n')
 
-    def import_bookmarks(self):
-        try:
-            file = open('bookmarks_data.json', 'r')
-            lines = file.readlines()
-            self.bookmarks = []
-            for line in lines:
-                self.bookmarks.append(json.loads(line.strip()))
-            return True, "Bookmarks were successfully imported."
-        except:
-            return False, "Bookmarks cannot be imported."
+        return True, "Bookmarks were successfully exported in '{}' file.".format(filename)
+
+
+    def import_bookmarks(self, filename):
+        if (type(filename) is not str):
+            raise TypeError("The parameter 'filename' has to be string.")
+
+        file = open(filename, 'r')
+        lines = file.readlines()
+        self.bookmarks = []
+        for line in lines:
+            self.bookmarks.append(json.loads(line.strip()))
+
+        file.close()
+        return True, "Bookmarks from '{}' file were successfully imported.".format(filename)
+
+

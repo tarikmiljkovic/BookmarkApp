@@ -1,4 +1,7 @@
 import unittest
+import os
+from os.path import exists
+
 from BookmarkApp import BookmarkApp
 
 
@@ -275,7 +278,7 @@ class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
         self.assertTrue(ret_status)
         self.assertEqual(message, "The bookmark for '{}' user is sorted according to rating parameter.".format(app.current_user))
 
-    def test_034_sort_bookmarks_according_to_datetime(self):
+    def test_035_sort_bookmarks_according_to_datetime(self):
         users = ['user1', 'user2']
         max_users = 2
         app = BookmarkApp(max_users, users)
@@ -293,4 +296,76 @@ class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
         self.assertTrue(ret_status)
         self.assertEqual(message,
                          "The bookmark for '{}' user is sorted according to datetime parameter.".format(app.current_user))
-        
+
+class Test_BookmarkApp_export_bookmarks(unittest.TestCase):
+    def test_036_export_bookmarks_filename_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.export_bookmarks(1)
+
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.export_bookmarks(None)
+
+    def test_037_export_bookmarks(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+
+        url = "https://google.com/"
+        ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
+
+        url = "https://youtube.com/"
+        ret_status, message = app.add_new_bookmark("YouTube", url, ['google', 'fun'])
+
+        filename = "bookmarks_data.json"
+        if (exists(filename)):
+            os.remove(filename)
+
+        ret_status, message = app.export_bookmarks(filename)
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "Bookmarks were successfully exported in '{}' file.".format(filename))
+        self.assertTrue(exists(filename))
+
+class Test_BookmarkApp_import_bookmarks(unittest.TestCase):
+    def test_038_import_bookmarks_filename_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.import_bookmarks(1)
+
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.import_bookmarks(None)
+
+    def test_037_export_bookmarks(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+
+        url = "https://google.com/"
+        ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
+
+        url = "https://youtube.com/"
+        ret_status, message = app.add_new_bookmark("YouTube", url, ['google', 'fun'])
+
+        filename = "bookmarks_data.json"
+        if (exists(filename)):
+            os.remove(filename)
+
+        ret_status, message = app.export_bookmarks(filename)
+
+        app.bookmarks = []
+        ret_status, message = app.import_bookmarks(filename)
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "Bookmarks from '{}' file were successfully imported.".format(filename))
+        self.assertNotEqual(app.bookmarks, [])
