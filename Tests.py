@@ -189,7 +189,7 @@ class Test_BookmarkApp_remove_tag(unittest.TestCase):
         ret_status, message = app.remove_tag(title, url, "tool")
         self.assertFalse(ret_status)
 
-class Test_BookmarkApp_remove_bookmatk(unittest.TestCase):
+class Test_BookmarkApp_remove_bookmark(unittest.TestCase):
     def test_028_remove_bookmark_url_wrong_type(self):
         with self.assertRaises(TypeError):
             users = ['user1', 'user2']
@@ -230,3 +230,67 @@ class Test_BookmarkApp_remove_bookmatk(unittest.TestCase):
         ret_status, message = app.remove_bookmark(url)
         self.assertFalse(ret_status)
         self.assertEqual(message, "The bookmark does not exist.")
+
+
+class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
+    def test_032_sort_bookmarks_option_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.sort_bookmarks(1)
+
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.sort_bookmarks(None)
+
+    def test_033_sort_bookmarks_option_wrong_value(self):
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.sort_bookmarks("aabbcc112233")
+
+    def test_034_sort_bookmarks_according_to_rating(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+
+        url = "https://google.com/"
+        ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
+        url = "https://google.com/"
+        ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
+
+
+        url = "https://youtube.com/"
+        ret_status, message = app.add_new_bookmark("YouTube", url, ['google', 'fun'])
+
+        ret_status, message, sorted_bookmarks = app.sort_bookmarks("rating")
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "The bookmark for '{}' user is sorted according to rating parameter.".format(app.current_user))
+
+    def test_034_sort_bookmarks_according_to_datetime(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+
+        url = "https://google.com/"
+        ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
+
+        url = "https://youtube.com/"
+        ret_status, message = app.add_new_bookmark("YouTube", url, ['google', 'fun'])
+
+        ret_status, message, sorted_bookmarks = app.sort_bookmarks("datetime")
+        self.assertTrue(ret_status)
+        self.assertEqual(message,
+                         "The bookmark for '{}' user is sorted according to datetime parameter.".format(app.current_user))
+        

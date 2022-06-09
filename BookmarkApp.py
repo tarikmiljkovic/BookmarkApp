@@ -129,9 +129,12 @@ class BookmarkApp:
 
         return False, "The bookmark does not exist."
 
-    def sort_bookmarks(self, option=None):
-        if (option is None):
-            return False, "The option is not specified."
+    def sort_bookmarks(self, option):
+        if (type(option) is not str):
+            raise TypeError("Parameter 'option' should be specified as string.")
+
+        if (option != "rating") and (option != "datetime"):
+            raise ValueError("Parameter 'option' has only two possible values: rating and datetime")
 
         sorted_bookmarks = []
         for data_el in self.bookmarks:
@@ -139,12 +142,12 @@ class BookmarkApp:
                 sorted_bookmarks.append(data_el)
 
         if option == "rating":
-            newlist = sorted(sorted_bookmarks, key=itemgetter('rating'))
-            return True, newlist
+            newlist = sorted(sorted_bookmarks, key=itemgetter('rating'), reverse=True)
+            return True, "The bookmark for '{}' user is sorted according to rating parameter.".format(self.current_user), newlist
 
         elif option == "datetime":
-            newlist = sorted(sorted_bookmarks, key=itemgetter('datetime'))
-            return True, newlist
+            newlist = sorted(sorted_bookmarks, key=itemgetter('datetime'), reverse=True)
+            return True, "The bookmark for '{}' user is sorted according to datetime parameter.".format(self.current_user), newlist
 
     def export_bookmarks(self):
         try:
