@@ -1,16 +1,16 @@
 from BookmarkApp import BookmarkApp
 
 if __name__ == '__main__':
-    app = BookmarkApp(['Tarik', 'Emina', 'Richard'])
+    app = BookmarkApp(3, ['user1', 'user2', 'user3'])
     ret_status, message = app.select_user(0)
     if (ret_status == True):
         print(message)
 
-    ret_status, message = app.add_new_bookmark(title="prvo", url="https://mentalibor.ba")
+    ret_status, message = app.add_new_bookmark(title="Tarik", url="https://tarikmiljkovic.at", tag = [])
     if (ret_status == True):
         print(message)
 
-    ret_status, message = app.add_new_bookmark(title="drugo", url="https://mentalibor.com")
+    ret_status, message = app.add_new_bookmark(title="Tarik", url="https://tarikmiljkovic.at", tag = [])
     if (ret_status == True):
         print(message)
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if (ret_status == True):
         print(message)
 
-    ret_status, message = app.add_new_bookmark(title="drugo", url="https://mentalibor.com")
+    ret_status, message = app.add_new_bookmark(title="Tarik", url="https://tarikmiljkovic.at", tag = [])
     if (ret_status == True):
         print(message)
 
