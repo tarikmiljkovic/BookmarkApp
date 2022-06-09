@@ -90,20 +90,28 @@ class BookmarkApp:
         else:
             return True, "{} item(s) have been found.".format(len(filtered_bookmarks)), filtered_bookmarks
 
-    def remove_tag(self, title=None, url=None, tag=None):
-        if (tag is None):
-            return False, "Tag is not provided."
-        if (url is None):
-            return False, "URL of bookmark is not provided."
+    def remove_tag(self, title, url, tag):
+        if (type(title) is not str):
+            raise TypeError("Parameter 'title' should be specified as string.")
+
+        if (type(url) is not str):
+            raise TypeError("Parameter 'url' should be specified as string.")
+
+        if (type(tag) is not str):
+            raise TypeError("Parameter 'tag' should be specified as string.")
+
+        valid = validators.url(url)
+        if valid != True:
+            raise ValueError("The URL is invalid.")
 
         for data_el in self.bookmarks:
             if (data_el['user'] == self.current_user):
                 if data_el['url'] == url:
                     if (tag in data_el['tag']):
                         data_el['tag'].remove(tag)
-                        return True, "Tag has been removed."
+                        return True, "Tag '{}' has been removed.".format(tag)
                     else:
-                        return False, "Tag does not exist."
+                        return False, "Tag does not exist in selected bookmark."
 
     def remove_bookmark(self, url=None):
         if (url is None):

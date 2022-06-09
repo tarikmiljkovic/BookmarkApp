@@ -86,7 +86,7 @@ class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
             app = BookmarkApp(2, users)
             app.add_new_bookmark("title", "https://github.com/", 1)
 
-    def test_015_add_new_bookmark_tag_wrong_type(self):
+    def test_015_add_new_bookmark_invalid_url(self):
         with self.assertRaises(ValueError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
@@ -143,3 +143,48 @@ class Test_BookmarkApp_filter_bookmarks(unittest.TestCase):
         ret_status, message = app.filter_bookmarks(['tool'])
         self.assertFalse(ret_status)
         self.assertIn(message, "Nothing has been found.")
+
+class Test_BookmarkApp_remove_tag(unittest.TestCase):
+    def test_022_remove_tag_title_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_tag(1, "https://github.com/", "git")
+
+    def test_023_remove_tag_url_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_tag("title", 1, "git")
+
+    def test_024_remove_tag_tag_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_tag("title", "https://github.com/", 1)
+
+    def test_025_remove_tag_invalid_url(self):
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_tag("title", "abc123", "tag")
+
+    def test_026_remove_tag_remove_existing_single_tag(self):
+        users = ['user1', 'user2']
+        app = BookmarkApp(2, users)
+        title = "GIT"
+        url = "https://github.com/"
+        tags = ['git', 'code']
+        ret_status, message = app.add_new_bookmark(title, url, tags)
+        ret_status, message = app.remove_tag(title, url, "git")
+        self.assertTrue(ret_status)
+
+    def test_027_remove_tag_remove_non_existing_single_tag(self):
+        users = ['user1', 'user2']
+        app = BookmarkApp(2, users)
+        title = "GIT"
+        url = "https://github.com/"
+        tags = ['git', 'code']
+        ret_status, message = app.add_new_bookmark(title, url, tags)
+        ret_status, message = app.remove_tag(title, url, "tool")
+        self.assertFalse(ret_status)
