@@ -113,9 +113,13 @@ class BookmarkApp:
                     else:
                         return False, "Tag does not exist in selected bookmark."
 
-    def remove_bookmark(self, url=None):
-        if (url is None):
-            return False, "URL of bookmark is not provided."
+    def remove_bookmark(self, url):
+        if (type(url) is not str):
+            raise TypeError("Parameter 'url' should be specified as string.")
+
+        valid = validators.url(url)
+        if valid != True:
+            raise ValueError("The URL is invalid.")
 
         for data_el in self.bookmarks:
             if (data_el['user'] == self.current_user):

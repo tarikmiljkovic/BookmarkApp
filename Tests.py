@@ -188,3 +188,45 @@ class Test_BookmarkApp_remove_tag(unittest.TestCase):
         ret_status, message = app.add_new_bookmark(title, url, tags)
         ret_status, message = app.remove_tag(title, url, "tool")
         self.assertFalse(ret_status)
+
+class Test_BookmarkApp_remove_bookmatk(unittest.TestCase):
+    def test_028_remove_bookmark_url_wrong_type(self):
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(1)
+
+        with self.assertRaises(TypeError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(None)
+
+    def test_029_remove_bookmark_invalid_url(self):
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark("abc123")
+
+    def test_030_remove_bookmark_existing_bookmark(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+        ret_status, message = app.remove_bookmark(url)
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "The bookmark has been deleted.")
+
+    def test_031_remove_bookmark_non_existing_bookmark(self):
+        users = ['user1', 'user2']
+        max_users = 2
+        app = BookmarkApp(max_users, users)
+
+        url = "https://github.com/"
+        ret_status, message = app.add_new_bookmark("GIT", url, ['git', 'code'])
+
+        url = "https://google.com/"
+        ret_status, message = app.remove_bookmark(url)
+        self.assertFalse(ret_status)
+        self.assertEqual(message, "The bookmark does not exist.")
