@@ -5,48 +5,54 @@ from os.path import exists
 from BookmarkApp import BookmarkApp
 
 
-
 class Test_BookmarkApp__init__(unittest.TestCase):
     def test_001__init__max_users_negative_value(self):
-        users = ['user1', 'user2','user3']
+        users = ['user1', 'user2', 'user3']
         self.assertRaises(ValueError, BookmarkApp, -1, users)
 
     def test_002__init__max_users_zero_value(self):
-        users = ['user1', 'user2','user3']
+        users = ['user1', 'user2', 'user3']
         self.assertRaises(ValueError, BookmarkApp, 0, users)
 
     def test_003__init__max_users_string_value(self):
-        users = ['user1', 'user2','user3']
-        self.assertRaises(TypeError, BookmarkApp, '1', users)
+        users = ['user1', 'user2', 'user3']
+        self.assertRaises(AssertionError, BookmarkApp, '1', users)
 
     def test_004__init__max_users_float_value(self):
-        users = ['user1', 'user2','user3']
-        self.assertRaises(TypeError, BookmarkApp, 0.1, users)
+        users = ['user1', 'user2', 'user3']
+        self.assertRaises(AssertionError, BookmarkApp, 0.1, users)
 
     def test_005__init__max_users_maximum_value_overflow(self):
-        users = ['user1', 'user2','user3']
-        self.assertRaises(OverflowError, BookmarkApp, 4, users)
+        users = ['user1', 'user2', 'user3']
+        self.assertRaises(ValueError, BookmarkApp, 4, users)
 
     def test_006__init__users_non_list_type(self):
         users = ('user1', 'user2')
-        self.assertRaises(TypeError, BookmarkApp, 2, users)
+        self.assertRaises(AssertionError, BookmarkApp, 2, users)
 
     def test_007__init__max_users_not_equal_to_num_of_users(self):
-        users = ['user1', 'user2','user3']
+        users = ['user1', 'user2', 'user3']
         self.assertRaises(ValueError, BookmarkApp, 1, users)
 
         users = ['user1']
         self.assertRaises(ValueError, BookmarkApp, 3, users)
 
+    def test_008__init__max__(self):
+        try:
+            users = ['user1']
+            app = BookmarkApp(1, users)
+        except:
+            self.fail("BookmarkApp init failed unexpectedly!")
+
 
 class Test_BookmarkApp_select_user(unittest.TestCase):
     def test_008_select_user_option_non_integer_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             ret_status, message = app.select_user(None)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             ret_status, message = app.select_user("1")
@@ -64,27 +70,40 @@ class Test_BookmarkApp_select_user(unittest.TestCase):
             app = BookmarkApp(max_user_num, users)
             ret_status, message = app.select_user(max_user_num)
 
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            max_user_num = 4
+            app = BookmarkApp(max_user_num, users)
+            ret_status, message = app.select_user(max_user_num)
+
+        with self.assertRaises(ValueError):
+            users = ['user1', 'user2']
+            max_user_num = 1
+            app = BookmarkApp(max_user_num, users)
+            ret_status, message = app.select_user(max_user_num)
+
     def test_011_select_user_normal(self):
         users = ['user1', 'user2']
         app = BookmarkApp(2, users)
         ret_status, message = app.select_user(0)
         self.assertTrue(ret_status, msg=message)
 
+
 class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
     def test_012_add_new_bookmark_title_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.add_new_bookmark(1, "https://github.com/", ['git'])
 
     def test_013_add_new_bookmark_url_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.add_new_bookmark("title", 1, ['git'])
 
     def test_014_add_new_bookmark_tag_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.add_new_bookmark("title", "https://github.com/", 1)
@@ -97,9 +116,23 @@ class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
 
     def test_016_add_new_bookmark_unique_bookmark(self):
         app = BookmarkApp(2, ['user1', 'user2'])
+        old_secure_urls = app.secure_urls
         ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
         self.assertTrue(ret_status)
-        self.assertEqual(message, "New bookmark is added successfully.")
+        self.assertEqual("New domain added. New secure bookmark is added successfully.", message)
+        self.assertNotEqual(old_secure_urls, app.secure_urls)
+
+    def test_016_add_new_bookmark_unique_bookmark_new_domain(self):
+        app = BookmarkApp(2, ['user1', 'user2'])
+        ret_status, message = app.add_new_bookmark("GIT", "https://github.com/", ['git', 'code'])
+        self.assertTrue(ret_status)
+        self.assertEqual("New domain added. New secure bookmark is added successfully.", message)
+
+    def test_016_add_new_bookmark_unique_bookmark_unsecure(self):
+        app = BookmarkApp(2, ['user1', 'user2'])
+        ret_status, message = app.add_new_bookmark("GIT", "http://github.com/", ['git', 'code'])
+        self.assertTrue(ret_status)
+        self.assertEqual(message, "New domain added. New unsecure bookmark is added successfully.")
 
     def test_017_add_new_bookmark_duplicate_bookmark(self):
         app = BookmarkApp(2, ['user1', 'user2'])
@@ -108,14 +141,15 @@ class Test_BookmarkApp_add_new_bookmark(unittest.TestCase):
         self.assertTrue(ret_status)
         self.assertEqual(message, "Bookmark already exists, rating has been increased.")
 
+
 class Test_BookmarkApp_filter_bookmarks(unittest.TestCase):
     def test_018_filter_bookmarks_keywords_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.filter_bookmarks(1)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.filter_bookmarks(None)
@@ -147,21 +181,22 @@ class Test_BookmarkApp_filter_bookmarks(unittest.TestCase):
         self.assertFalse(ret_status)
         self.assertIn(message, "Nothing has been found.")
 
+
 class Test_BookmarkApp_remove_tag(unittest.TestCase):
     def test_022_remove_tag_title_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.remove_tag(1, "https://github.com/", "git")
 
     def test_023_remove_tag_url_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.remove_tag("title", 1, "git")
 
     def test_024_remove_tag_tag_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.remove_tag("title", "https://github.com/", 1)
@@ -192,17 +227,87 @@ class Test_BookmarkApp_remove_tag(unittest.TestCase):
         ret_status, message = app.remove_tag(title, url, "tool")
         self.assertFalse(ret_status)
 
+    def test_027_remove_tag_remove_existing_single_tag_wrong_user(self):
+        users = ['user1', 'user2']
+        app = BookmarkApp(2, users)
+        title = "GIT"
+        url = "https://github.com/"
+        tags = ['git', 'code']
+        ret_status, message = app.add_new_bookmark(title, url, tags)
+
+        app.select_user(1)
+
+        title = "Google"
+        url = "https://google.com/"
+        tags = ['search', 'knowledge']
+        ret_status, message = app.add_new_bookmark(title, url, tags)
+
+        app.select_user(0)
+        ret_status, message = app.remove_tag(title, url, "search")
+        self.assertFalse(ret_status)
+
+
 class Test_BookmarkApp_remove_bookmark(unittest.TestCase):
     def test_028_remove_bookmark_url_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.remove_bookmark(1)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(0.1)
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(1 + 1j)
+
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.remove_bookmark(None)
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(True)
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark((1, 2, 3))
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(range(3))
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark({'a': 1})
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(frozenset((1, 2, 3)))
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(bytes(5))
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(bytearray(5))
+
+        with self.assertRaises(AssertionError):
+            users = ['user1', 'user2']
+            app = BookmarkApp(2, users)
+            app.remove_bookmark(memoryview(bytearray('XYZ', 'utf-8')))
 
     def test_029_remove_bookmark_invalid_url(self):
         with self.assertRaises(ValueError):
@@ -237,12 +342,12 @@ class Test_BookmarkApp_remove_bookmark(unittest.TestCase):
 
 class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
     def test_032_sort_bookmarks_option_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.sort_bookmarks(1)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.sort_bookmarks(None)
@@ -270,13 +375,13 @@ class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
         url = "https://google.com/"
         ret_status, message = app.add_new_bookmark("Google", url, ['google', 'knowledge'])
 
-
         url = "https://youtube.com/"
         ret_status, message = app.add_new_bookmark("YouTube", url, ['google', 'fun'])
 
         ret_status, message, sorted_bookmarks = app.sort_bookmarks("rating")
         self.assertTrue(ret_status)
-        self.assertEqual(message, "The bookmark for '{}' user is sorted according to rating parameter.".format(app.current_user))
+        self.assertEqual(message,
+                         "The bookmark for '{}' user is sorted according to rating parameter.".format(app.current_user))
 
     def test_035_sort_bookmarks_according_to_datetime(self):
         users = ['user1', 'user2']
@@ -295,16 +400,18 @@ class Test_BookmarkApp_sort_bookmarks(unittest.TestCase):
         ret_status, message, sorted_bookmarks = app.sort_bookmarks("datetime")
         self.assertTrue(ret_status)
         self.assertEqual(message,
-                         "The bookmark for '{}' user is sorted according to datetime parameter.".format(app.current_user))
+                         "The bookmark for '{}' user is sorted according to datetime parameter.".format(
+                             app.current_user))
+
 
 class Test_BookmarkApp_export_bookmarks(unittest.TestCase):
     def test_036_export_bookmarks_filename_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.export_bookmarks(1)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.export_bookmarks(None)
@@ -332,14 +439,15 @@ class Test_BookmarkApp_export_bookmarks(unittest.TestCase):
         self.assertEqual(message, "Bookmarks were successfully exported in '{}' file.".format(filename))
         self.assertTrue(exists(filename))
 
+
 class Test_BookmarkApp_import_bookmarks(unittest.TestCase):
     def test_038_import_bookmarks_filename_wrong_type(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.import_bookmarks(1)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             app.import_bookmarks(None)
