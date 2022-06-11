@@ -36,9 +36,7 @@
 <h3>Details</h3>
 <ul>
     <li>module - <code><module 'BookmarkApp' from 'C:\\Users\\Sead\\Desktop\\bookmarks\\.\\BookmarkApp.py'></code></li>
-    <li><span class="label label-success">killed</span> by <code>test_008__init__max__ (Tests.Test_BookmarkApp__init__)</code></li>
-    
-    <li>duration - 0.002 s</li>
+    <li><span class="label label-success">killed</span> by <code>test_008__init__ (Tests.Test_BookmarkApp__init__)</code></li>
     
     
     <li>tests run - 8</li>
@@ -47,16 +45,10 @@
 
 <h3>Exception traceback</h3>
 <pre>Traceback (most recent call last):
-  File "C:\Users\Sead\Desktop\bookmarks\.\Tests.py", line 43, in test_008__init__max__
+  File "C:\Users\Sead\Desktop\bookmarks\.\Tests.py", line 43, in test_008__init__
     app = BookmarkApp(1, users)
+  File "BookmarkApp", line 14, in __init__
 ValueError: Parameter 'max_users' should be greater than 0.
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "C:\Users\Sead\Desktop\bookmarks\.\Tests.py", line 45, in test_008__init__max__
-    self.fail("BookmarkApp init failed unexpectedly!")
-AssertionError: BookmarkApp init failed unexpectedly!
 </pre>
 
 <h3>Mutations</h3>

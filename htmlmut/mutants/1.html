@@ -36,14 +36,20 @@
 <h3>Details</h3>
 <ul>
     <li>module - <code><module 'BookmarkApp' from 'C:\\Users\\Sead\\Desktop\\bookmarks\\.\\BookmarkApp.py'></code></li>
-    <li><span class="label label-danger">survived</span></li>
-    
-    <li>duration - 0.018 s</li>
+    <li><span class="label label-success">killed</span> by <code>test_011_select_user_option_exceeds_max_value (Tests.Test_BookmarkApp_select_user)</code></li>
     
     
-    <li>tests run - 43</li>
+    <li>tests run - 38</li>
     
 </ul>
+
+<h3>Exception traceback</h3>
+<pre>Traceback (most recent call last):
+  File "C:\Users\Sead\Desktop\bookmarks\.\Tests.py", line 69, in test_011_select_user_option_exceeds_max_value
+    ret_status, message = app.select_user(3)
+  File "BookmarkApp", line 35, in select_user
+IndexError: list index out of range
+</pre>
 
 <h3>Mutations</h3>
 <ul>

@@ -37,16 +37,14 @@ class Test_BookmarkApp__init__(unittest.TestCase):
         users = ['user1']
         self.assertRaises(ValueError, BookmarkApp, 3, users)
 
-    def test_008__init__max__(self):
-        try:
-            users = ['user1']
-            app = BookmarkApp(1, users)
-        except:
-            self.fail("BookmarkApp init failed unexpectedly!")
-
+    def test_008__init__(self):
+        app = None
+        users = ['user1']
+        app = BookmarkApp(1, users)
+        self.assertNotEqual(None, app)
 
 class Test_BookmarkApp_select_user(unittest.TestCase):
-    def test_008_select_user_option_non_integer_type(self):
+    def test_009_select_user_option_non_integer_type(self):
         with self.assertRaises(AssertionError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
@@ -57,32 +55,28 @@ class Test_BookmarkApp_select_user(unittest.TestCase):
             app = BookmarkApp(2, users)
             ret_status, message = app.select_user("1")
 
-    def test_009_select_user_option_negative_value(self):
+    def test_010_select_user_option_negative_value(self):
         with self.assertRaises(ValueError):
             users = ['user1', 'user2']
             app = BookmarkApp(2, users)
             ret_status, message = app.select_user(-1)
 
-    def test_010_select_user_option_exceeds_max_value(self):
+    def test_011_select_user_option_exceeds_max_value(self):
         with self.assertRaises(ValueError):
             users = ['user1', 'user2']
-            max_user_num = 3
+            max_user_num = 2
             app = BookmarkApp(max_user_num, users)
-            ret_status, message = app.select_user(max_user_num)
+            ret_status, message = app.select_user(3)
 
         with self.assertRaises(ValueError):
             users = ['user1', 'user2']
-            max_user_num = 4
+            max_user_num = 2
             app = BookmarkApp(max_user_num, users)
-            ret_status, message = app.select_user(max_user_num)
+            ret_status, message = app.select_user(4)
 
-        with self.assertRaises(ValueError):
-            users = ['user1', 'user2']
-            max_user_num = 1
-            app = BookmarkApp(max_user_num, users)
-            ret_status, message = app.select_user(max_user_num)
 
-    def test_011_select_user_normal(self):
+
+    def test_013_select_user_normal(self):
         users = ['user1', 'user2']
         app = BookmarkApp(2, users)
         ret_status, message = app.select_user(0)
